@@ -4,14 +4,18 @@ const { MongoClient, ObjectId } = require('mongodb');
 const app = express();
 const port = 3000;
 const url = 'mongodb://localhost:27017';
-const dbName = '\'myCompassDatabase\'';
+const dbName = 'myCompassDatabase';
 let db;
 
 app.use(express.urlencoded({ extended: true }));
+// Для обработки JSON данных добавляем: app.use(express.json());
 app.set('view engine', 'ejs');
 
 MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-  if (err) return console.log(err);
+  if (err) {
+    console.log(err);
+    return;
+  }
   db = client.db(dbName);
   app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
@@ -28,10 +32,11 @@ app.post('/submit-form', (req, res) => {
       res.status(500).send(err);
     } else {
       // Переадресация пользователя на страницу с подробностями документа
-      res.redirect(/details/${result.insertedId});
+      res.redirect(/details/${result.insertedId.toString()});
     }
   });
 });
+
 
 app.get('/details/:id', (req, res) => {
   const id = req.params.id;
